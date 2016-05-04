@@ -1,0 +1,36 @@
+{
+  "name": "flashbox-mock",
+  "version": "0.0.1",
+  "description": "Flashbox mock (local data service emulator)",
+  "main": "flashbox-mock.js",
+  "dependencies": {
+    "fs": "0.0.2",
+    "http": "0.0.0",
+    "httpdispatcher": "^1.0.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/pierreandreline/flashbox-mock.git"
+  },
+  "keywords": [
+    "Flashbox",
+    "data",
+    "service",
+    "emulator",
+    "simulator",
+    "scada"
+  ],
+  "author": "Pierre-André Liné",
+  "license": "ISC",
+  "bin": {
+    "flashbox-mock": "flashbox-mock.js"
+  },
+  "bugs": {
+    "url": "https://github.com/pierreandreline/flashbox-mock/issues"
+  },
+  "homepage": "https://github.com/pierreandreline/flashbox-mock#readme"
+}

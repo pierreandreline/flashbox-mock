@@ -34,7 +34,7 @@ process.argv.forEach(function (val, index, array) {
 const PORT=8080; 
 //var www = '/C/Users/Pierre-André/Desktop/Linaware/Dev/Subsea7/dev/ihm';
 //var clientPath = "C:\\Users\\Pierre-André\\Desktop\\Linaware\\Dev\\Subsea7\\dev\\ihm";
-var clientPath = "client";
+var clientPath = "\\client";
 //var www = 'ressources';
 dispatcher.setStatic('');
 dispatcher.setStaticDirname(clientPath);

@@ -1,0 +1,257 @@
+<link rel="import" href="./bower_components/paper-styles/paper-styles.html">
+<dom-module id="tags-list">
+  <template>
+
+	<style>
+		h2 {
+			font-family: Roboto;
+			background-color: #8080FF;
+			padding-bottom: 50px;
+			padding-top: 50px;
+			text-align: center;
+		}
+		
+		.shadow {
+            @apply(--shadow-elevation-16dp);
+        }
+
+        .titlebar {
+            background-color: var(--google-blue-700);
+			padding: 50px;
+			color: white;
+            @apply(--paper-font-display1);
+        }
+
+		.toolbar {
+            @apply(--paper-font-display2);
+        }
+		
+		.mybutton {
+			background-color: #FF0000;
+			color: #FFFFFF;
+		}
+		
+		.icon-button.blue > paper-ripple {
+			color: #4285f4;
+		}
+
+		/* FAB */
+		.fab {
+		  position: relative;
+		  display: inline-block;
+		  width: 56px;
+		  height: 56px;
+		  border-radius: 50%;
+		  color: #fff;
+		  overflow: hidden;
+		  transition: box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+		  transition-delay: 0.2s;
+		  box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.26);
+		}
+
+		.fab.red {
+		  background-color: #d23f31;
+		}
+
+		.fab.blue {
+		  background-color: #4285f4;
+		}
+
+		.fab.green {
+		  background-color: #0f9d58;
+		}
+
+		.fab:active {
+		  box-shadow: 0 8px 17px 0 rgba(0, 0, 0, 0.2);
+		  transition-delay: 0s;
+		}
+
+		.fab > iron-icon {
+		  margin: 16px;
+		}
+
+		.fab > iron-icon::shadow path {
+		  fill: #fff;
+		}
+		
+		.buttons {
+			/*position: relative;*/
+			float: right;
+			right: 0px;
+			bottom: -86px;
+		}
+
+		/* Small */
+		@media (max-width: 600px) {
+		  .titlebar {
+			padding: 10px;
+			color: white;
+            @apply(--paper-font-subhead);
+		  }
+		  
+			.buttons {
+				right: 0px;
+				bottom: -44px;
+			}
+		}
+		
+		paper-material {
+			padding: 2px;
+		}
+		
+		paper-item {
+			display: inline-flex;
+			margin: 5px;
+		}
+
+		.index {
+			width: 20px;
+		}
+		
+		.description {
+			width: 340px;
+		}
+		
+		.name {
+			width: 180px;
+		}
+		
+		.state {
+			width: 100px;
+			text-align: center;
+		}
+		
+		.value {
+			background-color: black;
+			color: yellow;
+			text-align: center;
+			width: 100px;
+		}
+		
+		paper-button.commande {
+			line-height:15px;
+		}
+    </style>
+	
+	<pa-loading></pa-loading>
+
+    <div>
+		<div class="titlebar shadow">
+			<h3>Flashbox mock simul page</h3>
+			<small>Manage watch lists to simulate tags values ...</small>
+			<div class="buttons">
+				<div class="fab blue">
+					<iron-icon icon="add"></iron-icon>
+				</div>
+				<div class="fab red">
+					<iron-icon icon="delete"></iron-icon>
+				</div>
+			</div>
+		</div>
+		<paper-button raised on-tap="refresh">Load</paper-button>
+		<paper-input id="inputFilter" on-change="refresh" value=""></paper-input>
+		<!--<input value="{{searchString::input}}"/>-->
+
+		<template id="templateList" is="dom-repeat" items="{{tags}}" as="tag" index-as="tagIndex" filter="computeFilter">
+			<paper-material elevation="1">
+				<paper-item class="index">[[tagIndex]]</paper-item>
+				<paper-item class="name">[[tag.name]]</paper-item>
+				<paper-item class="description">[[tag.description]]</paper-item>
+				<paper-item class="value"><span style="width: 100%">[[tag.value]]</span></paper-item>
+				<paper-item class="state" style$="background-color: [[tag.stateColor]]; padding:3px"><span style="width: 100%">[[tag.state.label]]</span></paper-item>
+				<paper-item><paper-button raised class="commande" on-tap="setZero" tag="[[tag]]">0</paper-button>
+			<paper-button raised class="commande" on-tap="setOne" tag="[[tag]]">1</paper-button>
+			<paper-button raised class="commande" on-tap="subOne" tag="[[tag]]">-1</paper-button>
+			<paper-button raised class="commande" on-tap="addOne" tag="[[tag]]">+1</paper-button></paper-item>
+			</paper-material>
+		</template>
+
+		<paper-material elevation="3">
+			<table>
+				<tbody>
+					<template id="templateList2" is="dom-repeat" items="{{tags}}" as="tag" index-as="tagIndex" filter="computeFilter">
+						<tr>
+							<paper-item>[[tagIndex]]</paper-item>
+							<paper-item>[[tag.name]]</paper-item>
+							<paper-item>[[tag.description]]</paper-item>
+							<paper-item>[[tag.value]]</paper-item>
+							<paper-item>[[tag.stateLabel]]</paper-item>
+						</tr>
+					</template>
+				</tbody>
+			</table>
+		</paper-material>
+	
+    </div>
+    
+  </template>
+
+  <script>
+    (function() {
+      'use strict';
+
+      Polymer({
+        is: 'tags-list',
+		
+		properties: {
+			tags: {
+				type: Array
+			},
+			searchString: {
+				type: String,
+				value : ''
+			}
+		},
+		
+		ready: function() {
+			setTimeout(this.timerInit, 250, this);
+		},
+		
+		refresh: function (e) {
+			this.searchString = this.$.inputFilter.value.toLowerCase();
+			this.$.templateList.render();
+		},
+		
+		timerInit: function(that) {
+			if (Tags.length > 0) {
+					that.tags = Tags;
+			}
+			else {
+				setTimeout(this.timerInit, 250, that);
+			}
+		},
+		
+		computeFilter: function(tag) {
+			if (this.searchString == "") {
+			  return false;
+			}
+			if (tag == undefined)
+				return false;
+			return (tag.name.toLowerCase().indexOf(this.searchString) != -1 || tag.description.toLowerCase().indexOf(this.searchString) != -1);
+		},
+		
+		setOne: function(e) {
+			var tag = e.currentTarget.tag;
+			Tags.write(tag,1);
+		},
+		
+		setZero: function(e) {
+			var tag = e.currentTarget.tag;
+			Tags.write(tag,0);
+		},
+		
+		addOne: function(e) {
+			var tag = e.currentTarget.tag;
+			Tags.write(tag,parseFloat(tag.value) + 1);
+		},
+		
+		subOne: function(e) {
+			var tag = e.currentTarget.tag;
+			Tags.write(tag,parseFloat(tag.value) - 1);
+		}
+		
+      });
+    })();
+  </script>
+
+</dom-module>

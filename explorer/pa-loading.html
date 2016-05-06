@@ -1,0 +1,444 @@
+<dom-module id='pa-loading'>
+  <template>
+    <style include='shared-styles'></style>
+    
+    <style>
+        
+        paper-header-panel {
+        display: inline-block;
+        width: 380px;
+        height: 388px;
+        margin: 12px;
+        text-align: center;
+        @apply(--shadow-elevation-2dp);
+      }
+
+      .paper-header {
+        height: 40px;
+        font-size: 16px;
+        line-height: 40px;
+        padding: 0 10px;
+        color: white;
+        transition: height 0.2s;
+      }
+
+      .paper-header.tall {
+      }
+
+      .paper-header.medium-tall {
+        height: 100px;
+        line-height: 50px;
+      }
+
+      .content {
+        height: 338px;
+        margin: 10px;
+        padding: 10px;
+      }
+
+      .cover {
+        margin: 60px;
+      }
+
+        .black {
+            color: black;
+        }
+        .blue {
+            color: blue;
+        }
+        .red {
+            color: red;
+        }
+        .green {
+            color: green;
+        }
+        grey {
+            color: #808080;
+        }
+        .traces {
+            line-height: 5px;
+        }
+
+      #background {
+            position: fixed;
+            top: 0px;
+            left: 0px;
+            width: 100%;
+            height: 190px;
+            background-color: dodgerblue;
+            z-index: 1;
+            text-align: center;
+        }
+        
+    </style>
+
+    <!-- REQUETE API HELLO -->    
+    <iron-ajax id="ajaxHello" url="/api/authentication.asmx/hello" on-response="helloResponse" on-error="herror" contentType="application/json" handle-as="xml" method="POST"></iron-ajax>
+
+    <!-- REQUETE API LECTURE DES PROFILS -->    
+    <iron-ajax id="ajaxGetProfils" url="/api/users.asmx/getUserProfilsList" on-response="getProfilsResponse" on-error="herror" contentType="application/json" handle-as="xml" method="POST"></iron-ajax>
+
+    <!-- REQUETE API CONNEXION -->    
+    <iron-ajax id="ajaxConnexion" url="/api/authentication.asmx/connect" on-response="connexionResponse" on-error="herror" handle-as="json" method="POST"></iron-ajax>
+
+    <!-- REQUETE API GROUPES -->    
+    <iron-ajax id="ajaxGroupes" url="/api/tags.asmx/getGroups" on-response="groupesResponse" on-error="herror" handle-as="xml" method="POST"></iron-ajax>
+
+    <!-- REQUETE API HISTORICS -->    
+    <iron-ajax id="ajaxHistorics" url="/supervision/params/historiques.json" on-response="historicsResponse" on-error="herror" handle-as="json" method="GET"></iron-ajax>
+
+    <!-- REQUETE API STATELEVELS -->    
+    <iron-ajax id="ajaxStateLevels" url="/api/tags.asmx/getStateLevels" on-response="stateLevelsResponse" on-error="herror" contentType="application/json" handle-as="xml" method="POST"></iron-ajax>
+
+    <!-- REQUETE API STATEMODELS -->    
+    <iron-ajax id="ajaxStateModels" url="/api/tags.asmx/getStateModels" on-response="stateModelsResponse" on-error="herror" contentType="application/json" handle-as="xml" method="POST"></iron-ajax>
+
+    <!-- REQUETE API STATES -->    
+    <iron-ajax id="ajaxStates" url="/api/tags.asmx/getStates" on-response="statesResponse" on-error="herror" contentType="application/json" handle-as="xml" method="POST"></iron-ajax>
+
+    <!-- REQUETE API GETTAGS -->    
+    <iron-ajax id="ajaxTags" url="/api/tags.asmx/getTags" on-response="tagsResponse" on-error="herror" contentType="application/json" handle-as="json" method="POST"></iron-ajax>
+
+    <!-- REQUETE API GETALLOBJECTS -->    
+    <iron-ajax id="ajaxGetAllObjects" url="/api/tags.asmx/getAllObjects" on-response="getAllObjectsResponse" on-error="herror" contentType="application/json" handle-as="text" method="POST"></iron-ajax>
+
+    <paper-dialog modal id="dialog">
+        <h2>Flashbox loading process</h2>
+        <paper-dialog-scrollable>
+            <template is='dom-repeat' items='{{traces}}'>
+                <p class$="traces [[item.class]]">[[item.text]]</p>
+            </template>
+
+            <div class="vertical-section" hidden$="[[!showLoginForm]]">
+                <paper-input id="username" label="Utilisateur" required auto-validate error-message="Saisir le nom d'utilisateur'"></paper-input>
+                <paper-input id="password" label="password" type="password" style="margin-bottom: 20px"></paper-input>
+                <paper-button tabindex="0" class="green ripple" raised on-tap="step3">Connexion</paper-button>
+            </div>
+            <div id="dropShadow" class="style-scope paper-header-panel has-shadow"></div>
+        </paper-dialog-scrollable>
+    </paper-dialog>
+
+    <!--
+    <div id="background">
+    </div>
+    -->
+
+  </template>
+
+  <script>
+    Polymer({
+        is: "pa-loading",
+        
+        properties: {
+                showLoginForm: {
+                    type: Boolean,
+                    value: false // init the value to true so it will be hidden on page load
+                }
+            },
+            
+        ready: function () {
+            this.traces = [];
+            this.showLoginForm = false;
+        },
+        
+        attached: function() {
+            //this.step1();
+            this.$.dialog.open();
+            //this.step10();
+            this.step1();
+        },
+        
+        /*
+        * ETAPE 1 : IDENTIFICATION DU POSTE
+        * 
+        * Appel de Hello pour l'identification initiale du poste
+        * Si le poste n'est pas autotisé, redirection vers la vue adéquate
+        * Si le poste est autorisé, identication manuelle ou automatique de l'utilisateur
+        * Si le login de l'utilisateur n'est pas nécessaire, chargement de la la vue principale
+        */
+        step1: function () {
+            this.$.ajaxHello.generateRequest();
+        },
+
+        helloResponse: function(request) {
+            app.clientProfil = JSON.parse(request.detail.response.firstChild.innerHTML);
+            this.push('traces',{'text':app.clientProfil.name,'class':'blue'});
+            this.push('traces',{'text':app.clientProfil.ipClient,'class':'black'});
+            this.push('traces',{'text':'Commands : '+(app.clientProfil.commands == 'True' ? 'yes' : 'no'),'class':"black"});
+            
+            this.step2();            
+        },
+        
+        herror: function(request) {
+            this.push('traces',{'text':'error : '+request.detail.error.message,'class':'red'});
+            this.push('traces',{'text':'Loading process stopped.','class':'red'});
+            //console.log(request.detail.error);
+            //console.log(this.$.ajax.lastResponse);
+        },
+        
+        /*
+        * ETAPE 2 : LECTURE DES PROFILS
+        */
+        step2: function() {
+            this.$.ajaxGetProfils.generateRequest();
+        },
+        
+        getProfilsResponse: function(request) {
+            app.profils = JSON.parse(request.detail.response.firstChild.innerHTML);
+            this.push('traces',{'text':'Profils loaded','class':'black'});
+            if (app.clientProfil.loginNeeded == 'True') {
+                this.set('showLoginForm', true);
+                this.$.username.focus();
+            }
+            else {
+                this.step4();
+            }
+            
+        },
+        
+        /*
+        * ETAPE 3 : IDENTIFICATION DU L'UTILISATEUR
+        * 
+        * Appel de Connect pour l'identification initiale du poste
+        * Cette étape est exécutée en fonction du retour de l'étape 1 (login needed, ...)
+        * La fonction est appelée par le bouton 'login' de la vue
+        */
+        step3: function() {
+            this.$.ajaxConnexion.body = "{'username':'" + this.$.username.value +"', 'password':'"+ this.$.password.value +"'}";
+            this.$.ajaxConnexion.contentType = "application/json; charset=UTF-8";
+            //this.$.ajaxConnexion.headers = "{ 'Content-Type': 'application/json; charset=UTF-8', 'dataType': 'json' }";
+            this.$.ajaxConnexion.generateRequest();
+            
+        },
+        
+        connexionResponse: function(request) {
+            app.user = JSON.parse(request.detail.response.d)[0];
+            if (app.user) {
+                this.push('traces',{'text':app.user.USER_Identification+ ' connecté','class':'black'});
+                this.set('showLoginForm', false);
+                this.step4();
+            }
+            else {
+                this.push('traces',{'text':'Connexion refusée','class':'red'});
+            }
+        },
+        
+        /*
+        * ETAPE 4 : LECTURE DES GROUPES
+        */
+        step4: function() {
+            this.$.ajaxGroupes.generateRequest();
+        },
+
+        groupesResponse: function(request) {
+            app.groups = JSON.parse(request.detail.response.firstChild.innerHTML);
+            this.push('traces',{'text':'Groups loaded','class':'black'});
+            this.step6();
+        },
+        
+        /*
+        * ETAPE 5 : LECTURE DES HISTORIQUES
+        */
+        step5: function() {
+            this.$.ajaxHistorics.generateRequest();
+        },
+
+        historicsResponse: function(request) {
+            app.historics = JSON.parse(request.detail.response);
+            this.push('traces',{'text':'Historics loaded','class':'black'});
+        },
+        
+        /*
+        * ETAPE 6 : LECTURE DES STATELEVELS
+        */
+        step6: function() {
+            this.$.ajaxStateLevels.generateRequest();
+        },
+
+        stateLevelsResponse: function(request) {
+            app.stateLevels = JSON.parse(request.detail.response.firstChild.innerHTML);
+            this.push('traces',{'text':'StateLevels loaded','class':'black'});
+            this.step7();
+        },
+        
+        /*
+        * ETAPE 7 : LECTURE DES STATEMODELS
+        */
+        step7: function() {
+            this.$.ajaxStateModels.generateRequest();
+        },
+
+        stateModelsResponse: function(request) {
+            app.stateModels = JSON.parse(request.detail.response.firstChild.innerHTML);
+            this.push('traces',{'text':'StateModels loaded','class':'black'});
+            this.step8();
+        },
+
+        /*
+        * ETAPE 8 : LECTURE DES STATES
+        */
+        step8: function() {
+            this.$.ajaxStates.generateRequest();
+        },
+
+        statesResponse: function(request) {
+            var states = JSON.parse(request.detail.response.firstChild.innerHTML);
+            for (var idx=0; idx < states.length; idx++) {
+                States.add(states[idx]);
+            }
+            
+            this.push('traces',{'text':'States loaded','class':'black'});
+            this.getTagsStartIndex = 0;
+            this.step9();
+        },
+
+        /*
+        * ETAPE 9 : LECTURE DES TAGS
+        */
+        step9: function() {
+            this.$.ajaxTags.body = "{'startIndex':'"+this.getTagsStartIndex+"'}";
+            this.$.ajaxTags.contentType = "application/json; charset=UTF-8";
+            this.$.ajaxTags.generateRequest();
+        },
+
+        tagsResponse: function(request) {
+            var tagsList = JSON.parse(request.detail.response.d);
+            if (tagsList.length >0) {
+                /*if (this.getTagsStartIndex == 0) {
+                    Tags = [];
+                    TagsNameIndex = [];
+                    TagsIdIndex = [];
+                }*/
+                for (var idxTag = 0; idxTag < tagsList.length; idxTag++) {
+                    var jtag = tagsList[idxTag];
+                    var variable = document.createElement('fb-variable');
+                    variable.id = parseInt(jtag.TG_TG_ID);
+                    variable.name = jtag.TG_Name;
+                    variable.description = jtag.TG_Description;
+					if ((jtag.TG_SM_ID != null) && (jtag.TG_SM_ID != undefined) && (jtag.TG_SM_ID != "")) {
+						variable.stateModel = app.stateModels[jtag.TG_SM_ID];
+					}
+					else {
+						variable.stateModel = undefined;
+					}
+                    variable.group = app.groups[jtag.TG_GR_ID];
+                    variable.animStateColor = "#C0C0C0";
+                    variable.value = 0;
+                    Tags.push(variable);
+                    TagsIdIndex.push(variable.id);
+                    TagsNameIndex.push(variable.name);
+					if (variable.stateModel != undefined) {
+						TagsLeveled.push(variable);
+						TagsLeveledIdIndex.push(variable.id);
+					}
+                }
+                if (this.getTagsStartIndex > 0) {
+                    this.pop('traces');    
+                }
+                this.getTagsStartIndex += tagsList.length;
+                this.step9();
+                this.push('traces',{'text':'Tags loaded ('+(this.getTagsStartIndex + tagsList.length).toString()+')','class':'black'});
+            }
+            else {
+                // Fin du chargement
+                this.step10();
+            }
+        },
+
+        /*
+        * ETAPE 10 : CHARGEMENT DE L'APPLICATION
+        * Lancement du process d'échanges temps réel des variables
+        */
+        step10: function() {
+            this.push('traces',{'text':'Initialization done','class':'blue'});
+            this.$.dialog.close();
+            this.dtLastRequest = 0;
+            
+            // Initialisation des animations des synoptiques
+            var listSynop = document.getElementsByTagName('fb-svgsynop');
+            for (var idxSynop=0; idxSynop < listSynop.length; idxSynop++) {
+                listSynop[idxSynop].init();
+            }
+            
+            this.parser = new window.DOMParser();
+            this.refreshData(this);
+        },
+        
+        refreshData: function(that) {
+            //this.$.ajaxGetAllObjects.body = "{'dtLastRequest':'"+this.dtLastRequest+"'}";
+            //this.$.ajaxGetAllObjects.contentType = "application/json; charset=UTF-8";
+            that.$.ajaxGetAllObjects.body = "dtLastRequest="+that.dtLastRequest;
+            that.$.ajaxGetAllObjects.contentType = "application/x-www-form-urlencoded";
+            that.$.ajaxGetAllObjects.generateRequest();
+        },
+        
+        getAllObjectsResponse: function(request) {
+            
+            var response = JSON.parse(this.parser.parseFromString(request.detail.response,'text/xml').firstChild.innerHTML);
+            var fbTime = new Date();
+            fbTime.setTime(response.AllObjects.dtEvent.Date);
+            app.sysTime = fbTime.toLocaleTimeString('fr-FR',{timeZone: "UTC", hour12: false});
+            app.sysDate = fbTime.toLocaleDateString();
+            var list = response.AllObjects.v;
+            if (list) {
+                if (list.length == undefined) {
+                    var v = list;
+                    list = [v];
+                }
+                for (var idxTag = 0; idxTag< list.length; idxTag++) {
+                    var jsonTag  = list[idxTag];
+                    var tagId = jsonTag.ID;
+                    var tagIndex = TagsIdIndex.indexOf(tagId);
+
+                    if (tagIndex >= 0) {
+                        var tag = Tags[tagIndex];
+	
+                        var d = new Date(jsonTag.dt.substring(0,10)*1000);
+                        d.setMinutes(d.getMinutes() + d.getTimezoneOffset());
+                        tag.dt = moment(d).format('DD/MM/YYYY HH:mm:ss');
+
+                        tag.setValue(jsonTag.v);
+                        if (this.dtLastRequest != 0) {
+                            console.log(tagIndex+" "+tagId+" "+tag.name+"="+tag.value);
+                        }
+						var dispatchTagLeveld = false;
+                        if (jsonTag.hasOwnProperty('ack')) {
+                            tag.ack = jsonTag.ack === "1"; 
+							dispatchTagLeveld = true;
+                        }
+                        if (jsonTag.hasOwnProperty('inh')) {
+                            tag.inh = jsonTag.inh === "1"; 
+							dispatchTagLeveld = true;
+                        }
+                        if (jsonTag.hasOwnProperty('st')) {
+                            var ST_Index = parseInt(jsonTag.st);
+                            tag.state = States.findById(tag.stateModel.SM_SM_ID, ST_Index);
+                            tag.stateLevel = tag.state.ST_SL_ID;
+                            tag.stateColor = '#' + ('00000' + (tag.state.ST_Color | 0).toString(16)).substr(-6); 
+							dispatchTagLeveld = true;
+                        }
+						if (dispatchTagLeveld) {
+							var idxTagLeveled = TagsLeveledIdIndex.indexOf(tag.id);
+							if (idxTagLeveled >=0) {
+								TagsLeveled.listeners.forEach(function (observer) {
+									var element = observer.element;
+									var property = observer.property;
+									element.notifyPath(property+"."+idxTagLeveled.toString()+".dt", tag.dt);
+									element.notifyPath(property+"."+idxTagLeveled.toString()+".ack", tag.ack);
+									element.notifyPath(property+"."+idxTagLeveled.toString()+".inh", tag.inh);
+									
+								});
+							}
+						}
+                    }  
+                }
+            }
+            this.dtLastRequest = response.AllObjects.dtEvent.Ticks;
+            setTimeout(this.refreshData,app.clientProfil.updatePeriod, this)           
+
+        }
+
+    });
+  </script>
+
+</dom-module>

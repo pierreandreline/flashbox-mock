@@ -1,0 +1,62 @@
+<script>
+    Polymer({
+    is: "fb-variable",
+    
+    ready: function() {
+        /*if (typeof(Tags) === 'undefined') {
+            Tags = [];
+            TagsIdIndex = [];
+            TagsNameIndex = [];
+        }
+        Tags.push(this);
+        //TagsIdIndex(this.id);
+        TagsNameIndex.push(this.name);
+        console.log('tag '+this.name+' ready.')*/
+    },
+    
+    attached: function() {
+        
+    },
+    
+    properties: {
+        id: {
+            type: Number  
+        },
+        name: {
+            type: String
+        },
+        description: {
+            type: String
+        },
+        unit: {
+            type: String
+        },
+        reference: {
+            type: String
+        },
+        ressource1: {
+            type: String
+        },
+        ressource2: {
+            type: String
+        },
+        ressource3: {
+            type: String
+        },
+        ressource4: {
+            type: String
+        },
+        value: {
+            type: Number,
+            value: 0
+        }
+    },
+    
+    setValue: function(value) {
+        this.value = value;
+        this.fire('valueChanged',this);
+    }
+    
+        
+    });
+</script>

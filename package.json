@@ -1,21 +1,23 @@
 {
   "name": "flashbox-mock",
-  "version": "0.0.1",
+  "version": "0.0.5",
   "description": "Flashbox mock (local data service emulator)",
-  "main": "flashbox-mock.js",
   "dependencies": {
     "fs": "0.0.2",
     "http": "0.0.0",
-    "httpdispatcher": "^1.0.0"
+    "httpdispatcher": "^1.0.0",
+    "mime": "^1.3.4"
   },
   "devDependencies": {},
   "scripts": {
+    "start": "node ./flashbox-mock.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/pierreandreline/flashbox-mock.git"
   },
+  "preferGlobal": true,
   "keywords": [
     "Flashbox",
     "data",
@@ -27,7 +29,8 @@
   "author": "Pierre-André Liné",
   "license": "ISC",
   "bin": {
-    "flashbox-mock": "flashbox-mock.js"
+    "flashbox-mock": "flashbox-mock.js",
+    "fbmock": "flashbox-mock.js"
   },
   "bugs": {
     "url": "https://github.com/pierreandreline/flashbox-mock/issues"

@@ -1,0 +1,157 @@
+0 info it worked if it ends with ok
+1 verbose cli [ 'c:\\Program Files (x86)\\nodejs\\node.exe',
+1 verbose cli   'c:\\Program Files (x86)\\nodejs\\node_modules\\npm\\bin\\npm-cli.js',
+1 verbose cli   'install',
+1 verbose cli   'polymer/paper-button' ]
+2 info using npm@2.14.12
+3 info using node@v4.3.2
+4 verbose install initial load of c:\Users\Pierre-André\Desktop\Linaware\Dev\Flashbox\sources\outils\flashbox-mock\package.json
+5 verbose installManyTop reading scoped package data from c:\Users\Pierre-André\Desktop\Linaware\Dev\Flashbox\sources\outils\flashbox-mock\node_modules\fs\package.json
+6 verbose installManyTop reading scoped package data from c:\Users\Pierre-André\Desktop\Linaware\Dev\Flashbox\sources\outils\flashbox-mock\node_modules\http\package.json
+7 verbose installManyTop reading scoped package data from c:\Users\Pierre-André\Desktop\Linaware\Dev\Flashbox\sources\outils\flashbox-mock\node_modules\httpdispatcher\package.json
+8 verbose installManyTop reading scoped package data from c:\Users\Pierre-André\Desktop\Linaware\Dev\Flashbox\sources\outils\flashbox-mock\node_modules\mime\package.json
+9 info package.json fs@0.0.2 fs is also the name of a node core module.
+10 info package.json fs@0.0.2 No description
+11 info package.json fs@0.0.2 No repository field.
+12 info package.json http@0.0.0 http is also the name of a node core module.
+13 info package.json http@0.0.0 No description
+14 info package.json http@0.0.0 No repository field.
+15 info package.json httpdispatcher@1.0.0 No license field.
+16 info package.json mime@1.3.4 No license field.
+17 verbose readDependencies loading dependencies from c:\Users\Pierre-André\Desktop\Linaware\Dev\Flashbox\sources\outils\flashbox-mock\package.json
+18 silly cache add args [ 'polymer/paper-button', null ]
+19 verbose cache add spec polymer/paper-button
+20 silly cache add parsed spec Result {
+20 silly cache add   raw: 'polymer/paper-button',
+20 silly cache add   scope: null,
+20 silly cache add   name: null,
+20 silly cache add   rawSpec: 'polymer/paper-button',
+20 silly cache add   spec: 'github:polymer/paper-button',
+20 silly cache add   type: 'hosted',
+20 silly cache add   hosted:
+20 silly cache add    { type: 'github',
+20 silly cache add      ssh: 'git@github.com:polymer/paper-button.git',
+20 silly cache add      sshUrl: 'git+ssh://git@github.com/polymer/paper-button.git',
+20 silly cache add      httpsUrl: 'git+https://github.com/polymer/paper-button.git',
+20 silly cache add      gitUrl: 'git://github.com/polymer/paper-button.git',
+20 silly cache add      shortcut: 'github:polymer/paper-button',
+20 silly cache add      directUrl: 'https://raw.githubusercontent.com/polymer/paper-button/master/package.json' } }
+21 verbose addRemoteGit caching polymer/paper-button
+22 verbose addRemoteGit polymer/paper-button is a repository hosted by github
+23 silly tryGitProto attempting to clone git://github.com/polymer/paper-button.git
+24 silly tryClone cloning polymer/paper-button via git://github.com/polymer/paper-button.git
+25 verbose tryClone git-github-com-polymer-paper-button-git-17906e05 not in flight; caching
+26 info git [ 'clone',
+26 info git   '--template=C:\\Users\\Pierre-André\\AppData\\Roaming\\npm-cache\\_git-remotes\\_templates',
+26 info git   '--mirror',
+26 info git   'git://github.com/polymer/paper-button.git',
+26 info git   'C:\\Users\\Pierre-André\\AppData\\Roaming\\npm-cache\\_git-remotes\\git-github-com-polymer-paper-button-git-17906e05' ]
+27 verbose mirrorRemote polymer/paper-button git clone git://github.com/polymer/paper-button.git
+28 verbose setPermissions polymer/paper-button skipping chownr on Windows
+29 verbose resolveHead polymer/paper-button original treeish: master
+30 info git [ 'rev-list', '-n1', 'master' ]
+31 silly resolveHead polymer/paper-button resolved treeish: 7a42274cbfb66c5c25797c7797ecc7516b632022
+32 verbose resolveHead polymer/paper-button resolved Git URL: git://github.com/polymer/paper-button.git#7a42274cbfb66c5c25797c7797ecc7516b632022
+33 silly resolveHead Git working directory: C:\Users\PIERRE~1\AppData\Local\Temp\npm-10712-b6bd50b7\git-cache-ee63725f1f7e\7a42274cbfb66c5c25797c7797ecc7516b632022
+34 info git [ 'clone',
+34 info git   'C:\\Users\\Pierre-André\\AppData\\Roaming\\npm-cache\\_git-remotes\\git-github-com-polymer-paper-button-git-17906e05',
+34 info git   'C:\\Users\\PIERRE~1\\AppData\\Local\\Temp\\npm-10712-b6bd50b7\\git-cache-ee63725f1f7e\\7a42274cbfb66c5c25797c7797ecc7516b632022' ]
+35 verbose cloneResolved polymer/paper-button clone Cloning into 'C:\Users\PIERRE~1\AppData\Local\Temp\npm-10712-b6bd50b7\git-cache-ee63725f1f7e\7a42274cbfb66c5c25797c7797ecc7516b632022'...
+35 verbose cloneResolved done.
+36 info git [ 'checkout', '7a42274cbfb66c5c25797c7797ecc7516b632022' ]
+37 verbose checkoutTreeish polymer/paper-button checkout Note: checking out '7a42274cbfb66c5c25797c7797ecc7516b632022'.
+37 verbose checkoutTreeish
+37 verbose checkoutTreeish You are in 'detached HEAD' state. You can look around, make experimental
+37 verbose checkoutTreeish changes and commit them, and you can discard any commits you make in this
+37 verbose checkoutTreeish state without impacting any branches by performing another checkout.
+37 verbose checkoutTreeish
+37 verbose checkoutTreeish If you want to create a new branch to retain commits you create, you may
+37 verbose checkoutTreeish do so (now or later) by using -b with the checkout command again. Example:
+37 verbose checkoutTreeish
+37 verbose checkoutTreeish   git checkout -b new_branch_name
+37 verbose checkoutTreeish
+37 verbose checkoutTreeish HEAD is now at 7a42274... Update README.md
+38 error addLocal Could not install C:\Users\PIERRE~1\AppData\Local\Temp\npm-10712-b6bd50b7\git-cache-ee63725f1f7e\7a42274cbfb66c5c25797c7797ecc7516b632022
+39 silly tryHTTPS attempting to clone git+https://github.com/polymer/paper-button.git
+40 silly tryClone cloning polymer/paper-button via git+https://github.com/polymer/paper-button.git
+41 verbose tryClone https-github-com-polymer-paper-button-git-5b6ca417 not in flight; caching
+42 info git [ 'clone',
+42 info git   '--template=C:\\Users\\Pierre-André\\AppData\\Roaming\\npm-cache\\_git-remotes\\_templates',
+42 info git   '--mirror',
+42 info git   'https://github.com/polymer/paper-button.git',
+42 info git   'C:\\Users\\Pierre-André\\AppData\\Roaming\\npm-cache\\_git-remotes\\https-github-com-polymer-paper-button-git-5b6ca417' ]
+43 verbose mirrorRemote polymer/paper-button git clone https://github.com/polymer/paper-button.git
+44 verbose setPermissions polymer/paper-button skipping chownr on Windows
+45 verbose resolveHead polymer/paper-button original treeish: master
+46 info git [ 'rev-list', '-n1', 'master' ]
+47 silly resolveHead polymer/paper-button resolved treeish: 7a42274cbfb66c5c25797c7797ecc7516b632022
+48 verbose resolveHead polymer/paper-button resolved Git URL: git+https://github.com/polymer/paper-button.git#7a42274cbfb66c5c25797c7797ecc7516b632022
+49 silly resolveHead Git working directory: C:\Users\PIERRE~1\AppData\Local\Temp\npm-10712-b6bd50b7\git-cache-7a766a917b87\7a42274cbfb66c5c25797c7797ecc7516b632022
+50 info git [ 'clone',
+50 info git   'C:\\Users\\Pierre-André\\AppData\\Roaming\\npm-cache\\_git-remotes\\https-github-com-polymer-paper-button-git-5b6ca417',
+50 info git   'C:\\Users\\PIERRE~1\\AppData\\Local\\Temp\\npm-10712-b6bd50b7\\git-cache-7a766a917b87\\7a42274cbfb66c5c25797c7797ecc7516b632022' ]
+51 verbose cloneResolved polymer/paper-button clone Cloning into 'C:\Users\PIERRE~1\AppData\Local\Temp\npm-10712-b6bd50b7\git-cache-7a766a917b87\7a42274cbfb66c5c25797c7797ecc7516b632022'...
+51 verbose cloneResolved done.
+52 info git [ 'checkout', '7a42274cbfb66c5c25797c7797ecc7516b632022' ]
+53 verbose checkoutTreeish polymer/paper-button checkout Note: checking out '7a42274cbfb66c5c25797c7797ecc7516b632022'.
+53 verbose checkoutTreeish
+53 verbose checkoutTreeish You are in 'detached HEAD' state. You can look around, make experimental
+53 verbose checkoutTreeish changes and commit them, and you can discard any commits you make in this
+53 verbose checkoutTreeish state without impacting any branches by performing another checkout.
+53 verbose checkoutTreeish
+53 verbose checkoutTreeish If you want to create a new branch to retain commits you create, you may
+53 verbose checkoutTreeish do so (now or later) by using -b with the checkout command again. Example:
+53 verbose checkoutTreeish
+53 verbose checkoutTreeish   git checkout -b new_branch_name
+53 verbose checkoutTreeish
+53 verbose checkoutTreeish HEAD is now at 7a42274... Update README.md
+54 error addLocal Could not install C:\Users\PIERRE~1\AppData\Local\Temp\npm-10712-b6bd50b7\git-cache-7a766a917b87\7a42274cbfb66c5c25797c7797ecc7516b632022
+55 silly trySSH attempting to clone git@github.com:polymer/paper-button.git
+56 silly tryClone cloning polymer/paper-button via git@github.com:polymer/paper-button.git
+57 verbose tryClone git-github-com-polymer-paper-button-git-c733840e not in flight; caching
+58 info git [ 'clone',
+58 info git   '--template=C:\\Users\\Pierre-André\\AppData\\Roaming\\npm-cache\\_git-remotes\\_templates',
+58 info git   '--mirror',
+58 info git   'git@github.com:polymer/paper-button.git',
+58 info git   'C:\\Users\\Pierre-André\\AppData\\Roaming\\npm-cache\\_git-remotes\\git-github-com-polymer-paper-button-git-c733840e' ]
+59 verbose mirrorRemote polymer/paper-button git clone git@github.com:polymer/paper-button.git
+60 verbose setPermissions polymer/paper-button skipping chownr on Windows
+61 verbose resolveHead polymer/paper-button original treeish: master
+62 info git [ 'rev-list', '-n1', 'master' ]
+63 silly resolveHead polymer/paper-button resolved treeish: 7a42274cbfb66c5c25797c7797ecc7516b632022
+64 verbose resolveHead polymer/paper-button resolved Git URL: git+ssh://git@github.com/polymer/paper-button.git#7a42274cbfb66c5c25797c7797ecc7516b632022
+65 silly resolveHead Git working directory: C:\Users\PIERRE~1\AppData\Local\Temp\npm-10712-b6bd50b7\git-cache-c3665aeb476a\7a42274cbfb66c5c25797c7797ecc7516b632022
+66 info git [ 'clone',
+66 info git   'C:\\Users\\Pierre-André\\AppData\\Roaming\\npm-cache\\_git-remotes\\git-github-com-polymer-paper-button-git-c733840e',
+66 info git   'C:\\Users\\PIERRE~1\\AppData\\Local\\Temp\\npm-10712-b6bd50b7\\git-cache-c3665aeb476a\\7a42274cbfb66c5c25797c7797ecc7516b632022' ]
+67 verbose cloneResolved polymer/paper-button clone Cloning into 'C:\Users\PIERRE~1\AppData\Local\Temp\npm-10712-b6bd50b7\git-cache-c3665aeb476a\7a42274cbfb66c5c25797c7797ecc7516b632022'...
+67 verbose cloneResolved done.
+68 info git [ 'checkout', '7a42274cbfb66c5c25797c7797ecc7516b632022' ]
+69 verbose checkoutTreeish polymer/paper-button checkout Note: checking out '7a42274cbfb66c5c25797c7797ecc7516b632022'.
+69 verbose checkoutTreeish
+69 verbose checkoutTreeish You are in 'detached HEAD' state. You can look around, make experimental
+69 verbose checkoutTreeish changes and commit them, and you can discard any commits you make in this
+69 verbose checkoutTreeish state without impacting any branches by performing another checkout.
+69 verbose checkoutTreeish
+69 verbose checkoutTreeish If you want to create a new branch to retain commits you create, you may
+69 verbose checkoutTreeish do so (now or later) by using -b with the checkout command again. Example:
+69 verbose checkoutTreeish
+69 verbose checkoutTreeish   git checkout -b new_branch_name
+69 verbose checkoutTreeish
+69 verbose checkoutTreeish HEAD is now at 7a42274... Update README.md
+70 error addLocal Could not install C:\Users\PIERRE~1\AppData\Local\Temp\npm-10712-b6bd50b7\git-cache-c3665aeb476a\7a42274cbfb66c5c25797c7797ecc7516b632022
+71 verbose stack Error: EISDIR: illegal operation on a directory, read
+71 verbose stack     at Error (native)
+72 verbose cwd c:\Users\Pierre-André\Desktop\Linaware\Dev\Flashbox\sources\outils\flashbox-mock\simul
+73 error Windows_NT 6.3.9600
+74 error argv "c:\\Program Files (x86)\\nodejs\\node.exe" "c:\\Program Files (x86)\\nodejs\\node_modules\\npm\\bin\\npm-cli.js" "install" "polymer/paper-button"
+75 error node v4.3.2
+76 error npm  v2.14.12
+77 error code EISDIR
+78 error errno -4068
+79 error syscall read
+80 error eisdir EISDIR: illegal operation on a directory, read
+80 error eisdir This is most likely not a problem with npm itself
+80 error eisdir and is related to npm not being able to find a package.json in
+80 error eisdir a package you are trying to install.
+81 verbose exit [ -4068, true ]

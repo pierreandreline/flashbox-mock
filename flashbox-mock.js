@@ -4,17 +4,59 @@ var http = require('http');
 var fs = require('fs');
 console.log(__dirname);
 
-var simulClientIp = "?";
-//var databasePath = "C:\\Users\\Pierre-André\\Desktop\\Linaware\\Dev\\Subsea7\\dev\\serveur\\src\\database\\";
-var databasePath = "server\\src\\database\\";
-
 var Groups = new Collection(["name"]);
 var StateLevels = new Collection(["name"]);
 var StateModels = new Collection(["name"]);
 var States = new Collection(["stateModel,stateIndex"]);
 var Tags = new Collection(["name"]);
-
 var server = http.createServer(handleRequest);
+
+var localhostSimulIp = "?";
+//var databasePath = "C:\\Users\\Pierre-André\\Desktop\\Linaware\\Dev\\Subsea7\\dev\\serveur\\src\\database\\";
+var serverPath = "server";
+var databasePath = "server\\src\\database\\";
+const port=8080; 
+
+//var clientPath = "C:\\Users\\Pierre-André\\Desktop\\Linaware\\Dev\\Subsea7\\dev\\ihm";
+var clientPath = "client";
+var appName = "-";
+
+fs.access('./flashbox-mock.json', (err) => {
+	if (err) {
+		start();
+	}
+	else {
+		fs.readFile('./flashbox-mock.json', function (error,data) {
+			if (error) {
+				console.log("Read error config file flashbox-mock.json : "+error);
+			}
+			else {
+				try {
+					var jsonParams = JSON.parse(data.toString());
+					if (jsonParams.hasOwnProperty("name")) {
+						appName = jsonParams.name;
+					}
+					if (jsonParams.hasOwnProperty("serverPath")) {
+						serverPath = jsonParams.serverPath;
+					}
+					if (jsonParams.hasOwnProperty("clientPath")) {
+						clientPath = jsonParams.clientPath;
+					}
+					if (jsonParams.hasOwnProperty("localhostSimulIp")) {
+						localhostSimulIp = jsonParams.localhostSimulIp;
+					}
+					if (jsonParams.hasOwnProperty("port")) {
+						port = parseInt(jsonParams.port);
+					}
+					start();
+				}
+				catch (err) {
+					console.log("Parsing errorconfig file flashbox-mock.json : "+err);
+				}
+			}
+		});
+	}
+});
 
 process.argv.forEach(function (val, index, array) {
   if (val.indexOf('=')) {
@@ -23,21 +65,14 @@ process.argv.forEach(function (val, index, array) {
 	var name = parameter[0].toUpperCase();
 	switch (name) {
 		case "CLIENTIP":
-		case "SIMULCLIENTIP":
-			simulClientIp = value;
-			console.log("simulClientIp="+simulClientIp);
+		case "LOCALHOSTSIMULIP":
+			localhostSimulIp = value;
+			console.log("localhostSimulIp="+localhostSimulIp);
 			break;
 	}
   }
 });
 
-const PORT=8080; 
-//var www = '/C/Users/Pierre-André/Desktop/Linaware/Dev/Subsea7/dev/ihm';
-//var clientPath = "C:\\Users\\Pierre-André\\Desktop\\Linaware\\Dev\\Subsea7\\dev\\ihm";
-var clientPath = "\\client";
-//var www = 'ressources';
-dispatcher.setStatic('');
-dispatcher.setStaticDirname(clientPath);
 
 function handleRequest(request, response){
     try {
@@ -61,6 +96,26 @@ dispatcher.onGet("/page1", function(req, res) {
     res.end('Page One');
 });    
 
+dispatcher.beforeFilter(/\/explorer/, function(req, res) { /explorer url
+	if ((req.url === '/explorer') || (req.url === '/explorer/') || (req.url === '/EXPLORER') || (req.url === '/EXPLORER/'))
+		req.url = '/explorer/index.html';
+	var url = require('url').parse(req.url, true);
+	var filename = require('path').join(__dirname, url.pathname);
+	var errorListener = this.errorListener;
+	require('fs').readFile(filename, function(err, file) {
+		if(err) {
+			res.writeHead(403, {'Content-Type': 'text/plain'});
+			res.end('Page not found');
+			return;
+		}
+		res.writeHeader(200, {
+			"Content-Type": require('mime').lookup(filename)
+		});
+		res.write(file, 'binary');
+		res.end();
+	});
+});
+	
 //A sample POST request
 dispatcher.onPost("/post1", function(req, res) {
     res.writeHead(200, {'Content-Type': 'text/plain'});
@@ -123,6 +178,7 @@ dispatcher.onPost("/api/tags.asmx/setAckAlarm", function(req, res) {
 		if (!tag.ack) {
 			tag.ack = true;
 			tag.dt = new Date().getTime();
+			saveTagsValues();
 		}
 		res.writeHead(200, {'Content-Type': 'application/xml'});
 		res.end(addString(JSON.stringify({"code":0, "message":"ok"})));
@@ -139,14 +195,16 @@ dispatcher.onPost("/api/tags.asmx/setAckAlarmGroup", function(req, res) {
 	var id = payload.id;
 	var group = Groups.findById(id);
 	if (group != undefined) {
-		Tags.forEach(function (tag) {
-			if (tag.group.id == id) {
+		for(var idx in Tags.collection) {
+			var tag = Tags.collection[idx];
+			if (Tags.ownsGroup(tag, group)) {
 				if (!tag.ack) {
 					tag.ack = true;
 					tag.dt = new Date().getTime();
 				}
 			}
-		});
+		};
+		saveTagsValues();
 		res.writeHead(200, {'Content-Type': 'application/xml'});
 		res.end(addString(JSON.stringify({"code":0, "message":"ok"})));
 	}
@@ -168,6 +226,7 @@ dispatcher.onPost("/api/tags.asmx/setInhibitAlarm", function(req, res) {
 			tag.inh = true;
 			tag.dt = new Date().getTime();
 			Tags.checkState(tag, true);
+			saveTagsValues();
 		}
 		res.writeHead(200, {'Content-Type': 'application/xml'});
 		res.end(addString(JSON.stringify({"code":0, "message":"ok"})));
@@ -190,6 +249,7 @@ dispatcher.onPost("/api/tags.asmx/setDeInhibitAlarm", function(req, res) {
 			tag.inh = false;
 			tag.dt = new Date().getTime();
 			Tags.checkState(tag, true);
+			saveTagsValues();
 		}
 		res.writeHead(200, {'Content-Type': 'application/xml'});
 		res.end(addString(JSON.stringify({"code":0, "message":"ok"})));
@@ -206,15 +266,17 @@ dispatcher.onPost("/api/tags.asmx/setInhibitAlarmGroup", function(req, res) {
 	var id = payload.id;
 	var group = Groups.findById(id);
 	if (group != undefined) {
-		Tags.forEach(function (tag) {
-			if (tag.group.id == id) {
+		for(var idx in Tags.collection) {
+			var tag = Tags.collection[idx];
+			if (Tags.ownsGroup(tag, group)) {
 				if (!tag.inh) {
 					tag.inh = true;
 					tag.dt = new Date().getTime();
 					Tags.checkState(tag, true);
 				}
 			}
-		});
+		};
+		saveTagsValues();
 		res.writeHead(200, {'Content-Type': 'application/xml'});
 		res.end(addString(JSON.stringify({"code":0, "message":"ok"})));
 	}
@@ -230,15 +292,16 @@ dispatcher.onPost("/api/tags.asmx/setDeInhibitAlarmGroup", function(req, res) {
 	var id = payload.id;
 	var group = Groups.findById(id);
 	if (group != undefined) {
-		Tags.forEach(function (tag) {
-			if (tag.group.id == id) {
+		for(var idx in Tags.collection) {
+			var tag = Tags.collection[idx];
+			if (Tags.ownsGroup(tag, group)) {
 				if (tag.inh) {
 					tag.inh = false;
 					tag.dt = new Date().getTime();
 					Tags.checkState(tag, true);
 				}
 			}
-		});
+		};
 		res.writeHead(200, {'Content-Type': 'application/xml'});
 		res.end(addString(JSON.stringify({"code":0, "message":"ok"})));
 	}
@@ -260,14 +323,26 @@ dispatcher.onPost("/api/users.asmx/getUserProfilsList", function(req, res) {
 // Groups    
 dispatcher.onPost("/api/tags.asmx/getGroups", function(req, res) {
     res.writeHead(200, {'Content-Type': 'application/xml'});
-	res.end(addString(JSON.stringify(Groups.collection)));
+	res.end(addString(JSON.stringify(Groups.collection,groupsReplacer)));
 });    
+
+groupsReplacer = function(key, value)
+{
+
+  if (key=="parentGroup"||key=="children")
+  {
+      return undefined;
+  }
+
+  else return value;
+
+}
 
 // hello    
 dispatcher.onPost("/api/authentication.asmx/hello", function(req, res) {
 	res.writeHead(200, {'Content-Type': 'application/xml'});
 	fs.readFile(databasePath+"ClientStations.csv", function (error,data) {
-		var clientIp = (simulClientIp != '?') ? simulClientIp : req.connection.remoteAddress;
+		var clientIp = (localhostSimulIp != '?') ? localhostSimulIp : req.connection.remoteAddress;
 		
 		var clientStations = csvToJson(data.toString());
 		for (var idx = 0; idx<clientStations.length; idx++) {
@@ -276,12 +351,12 @@ dispatcher.onPost("/api/authentication.asmx/hello", function(req, res) {
 			var ok = checkIpRange(clientIp, stations.ipRange);
 			if (ok) {
 				if (stations.connexionAllowed.toLowerCase() != "true") {
-					console.log('connexion',clientIp,stations.name,'refusée');
+					console.log('connexion',clientIp,stations.name,'refused');
 					res.end("<string xmlns=\"http://linaware.eu/\">"+JSON.stringify({"ipClient": clientIp, "authorized": "False"})+"</string>");
 					return;
 				}
 				else {
-					console.log('connexion',clientIp,stations.name,'acceptée');
+					console.log('connexion',clientIp,stations.name,'success');
 					stations.clientIp = clientIp;
 					stations.updatePeriod = stations.period;
 					res.end("<string xmlns=\"http://linaware.eu/\">"+JSON.stringify(stations)+"</string>");
@@ -289,7 +364,7 @@ dispatcher.onPost("/api/authentication.asmx/hello", function(req, res) {
 				}
 			}
 		}
-		console.log('connexion',clientIp,'refusée');
+		console.log('connexion',clientIp,'refused');
 		res.end("<string xmlns=\"http://linaware.eu/\">"+JSON.stringify({"ipClient": clientIp, "authorized": "False"})+"</string>");
 	
 	});
@@ -372,14 +447,26 @@ loadGroups = function() {
 	fs.readFile(databasePath+"Groups.csv", function (error,data) {
 		var list = csvToJson(data.toString());
 		var id = 0;
-		for(idx in list) {
+		for(var idx in list) {
 			item = list[idx];
 			item.id = id;
+			item.children = [];
+			console.log("groupe parent = "+item.parent);
 			Groups.add(item);
 			id++;
 			if (idx == list.length - 1) {
-				console.log('Groups loaded');
+				console.log('Groups loaded (x'+list.length.toString()+')');
 				loadStateLevels();
+			}
+		};
+		for(idx in Groups.collection) {
+			var group = Groups.collection[idx];
+			if (group.parent !== "") {
+				group.parentGroup = Groups.find(group.parent);
+				group.parentGroup.children.push(group);
+			}
+			else {
+				group.parentGroup = undefined;
 			}
 		};
 	});
@@ -395,7 +482,7 @@ loadStateLevels = function() {
 			StateLevels.add(item);
 			id++;
 			if (idx == list.length - 1) {
-				console.log('StateLevels loaded');
+				console.log('StateLevels loaded (x'+list.length.toString()+')');
 				loadStateModels();
 			}
 		};
@@ -413,7 +500,7 @@ loadStateModels = function() {
 			StateModels.add(item);
 			id++;
 			if (idx == list.length - 1) {
-				console.log('StateModels loaded');
+				console.log('StateModels loaded (x'+list.length.toString()+')');
 				loadStates();
 			}
 			
@@ -447,7 +534,7 @@ loadStates = function() {
 			States.add(item);
 			id++;
 			if (idx == list.length - 1) {
-				console.log('States loaded');
+				console.log('States loaded (x'+list.length.toString()+')');
 				loadTags();
 			}
 		};
@@ -465,7 +552,6 @@ loadTags = function() {
 				item.states = [];
 				if (item.stateModel != "") {
 					item.stateModelInstance = StateModels.find(item.stateModel);
-					if (id<50)
 					for(idxState in States.collection) {
 						var state = States.collection[idxState];
 						//console.log(state.stateModel,item.stateModel,state.stateModel == item.stateModel);
@@ -485,7 +571,7 @@ loadTags = function() {
 				Tags.add(item);
 				id++;
 				if (idx == list.length - 1) {
-					console.log('Tags loaded');
+					console.log('Tags loaded (x'+list.length.toString()+')');
 					loadTagsValues();
 				}
 			};
@@ -507,7 +593,7 @@ Tags.setValue = function(tag, value) {
 		saveTagsValues();
 	}
 	else {
-		console.log("setValue : tag introuvable");
+		console.log("setValue : tag unknown");
 	}
 }
 
@@ -524,10 +610,10 @@ Tags.checkState = function(tag, fire) {
 		return;
 	}
 	
+	var value = parseFloat(tag.value);
 	for(idx in tag.states) {
 		var state = tag.states[idx];
 		var threshold = parseFloat(state.threshold);
-		var value = parseFloat(tag.value);
 		var ok = false;
 		switch (state.operator) {
 			case "=": ok = threshold == value;break;
@@ -613,19 +699,46 @@ loadTagsValues = function() {
 				}
 			}
 		}
-		console.log('Tags values loaded');
+		console.log('Tags values loaded (x'+lines.length.toString()+')');
 		Tags.checkAllStates();
-		server.listen(PORT, function(){
+
+		server.listen(port, function(){
 			//Callback triggered when server is successfully listening. Hurray!
-			console.log("Server listening on: http://localhost:%s", PORT);
+			console.log("Server listening on: http://localhost:%s", port);
 		});
 	});
 };
 
-loadGroups();
-//loadStateLevels();
-//loadStateModels();
-//loadStates();
-//loadTags();
-//loadTagsValues();
+Tags.ownsGroup = function(tag,group) {
+	if (group === tag.groupInstance) {
+		return true;
+	}
+	for (var idx in group.children) {
+		var childGroup = group.children[idx];
+		if (Tags.ownsGroup(tag,childGroup)) {
+			return true;
+		}
+	}
+		
+	return false;
+}
+	
+start = function() {
+	databasePath = serverPath + "\\src\\database\\";
+	console.log("application : "+appName);
+	console.log("server path : "+serverPath);
+	console.log("database path : "+databasePath);
+	console.log("client path : "+clientPath);
+	console.log("localhost simul ip : "+localhostSimulIp);
+
+	dispatcher.setStatic('');
+	dispatcher.setStaticDirname("\\"+clientPath);
+	loadGroups();
+	
+	//loadStateLevels();
+	//loadStateModels();
+	//loadStates();
+	//loadTags();
+	//loadTagsValues();
+}
 
